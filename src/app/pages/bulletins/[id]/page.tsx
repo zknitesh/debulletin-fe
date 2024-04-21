@@ -186,10 +186,10 @@ const BulletinBoardPage = ({ params }: { params: { id: string } }) => {
                     className={`p-3 rounded shadow hover:shadow-lg transition-shadow duration-300 ease-in-out 
                     ${
                         topic.priority === Priority.High
-                            ? "text-xl bg-red-100 hover:bg-red-200"
+                            ? "text-2xl bg-red-200 hover:bg-red-400"
                             : topic.priority === Priority.Medium
-                            ? "text-lg bg-yellow-100 hover:bg-yellow-200"
-                            : "text-base bg-green-100 hover:bg-green-200"
+                            ? "text-lg bg-yellow-200 hover:bg-yellow-400"
+                            : "text-base bg-green-200 hover:bg-green-400"
                     }`}
                     title={`Created by: ${topic.createdBy} on ${topic.createdAt}`}
                 >
