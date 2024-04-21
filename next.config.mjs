@@ -12,8 +12,12 @@ const nextConfig = {
                 destination: "/pages/bulletins",
             },
             {
-                source: "/bulletins/:id",
-                destination: "/pages/bulletins/:id",
+                source: "/bulletins/:bulletinId",
+                destination: "/pages/bulletins/:bulletinId",
+            },
+            {
+                source: "/bulletins/:bulletinId/:bulletinTopicId",
+                destination: "/pages/bulletins/:bulletinId/:bulletinTopicId",
             },
             {
                 source: "/register",

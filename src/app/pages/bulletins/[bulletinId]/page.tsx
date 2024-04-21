@@ -219,7 +219,7 @@ const getRandomNonOverlappingPosition = (
     return position;
 };
 
-const BulletinBoardPage = ({ params }: { params: { id: string } }) => {
+const BulletinBoardPage = ({ params }: { params: { bulletinId: string } }) => {
     const [bulletins, setBulletins] = useState<BulletinTopic[]>([]);
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [containerDimensions, setContainerDimensions] = useState<Dimension>({
@@ -227,7 +227,7 @@ const BulletinBoardPage = ({ params }: { params: { id: string } }) => {
         height: 800,
     });
     const positions = useRef<BulletinPosition[]>([]);
-
+    console.log(`Bulletin Board Id ${params.bulletinId}`);
     useEffect(() => {
         function updateDimensions() {
             setContainerDimensions({
