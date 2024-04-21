@@ -179,18 +179,30 @@ const BulletinBoardPage = ({ params }: { params: { id: string } }) => {
     }, []);
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-5">
-            {bulletins.map((topic) => (
+        <div
+            className="p-5"
+            style={{
+                position: "relative",
+                height: "100vh",
+                background: "burlywood",
+            }}
+        >
+            {bulletins.map((topic, index) => (
                 <div
                     key={topic.id}
-                    className={`p-3 rounded shadow hover:shadow-lg transition-shadow duration-300 ease-in-out 
+                    className={`absolute p-3 rounded-lg shadow-lg transition-all duration-300 ease-in-out 
                     ${
                         topic.priority === Priority.High
-                            ? "text-2xl bg-red-200 hover:bg-red-400"
+                            ? "text-2xl font-bold bg-red-500 hover:bg-red-600 text-white"
                             : topic.priority === Priority.Medium
-                            ? "text-lg bg-yellow-200 hover:bg-yellow-400"
-                            : "text-base bg-green-200 hover:bg-green-400"
+                            ? "text-lg bg-yellow-300 hover:bg-yellow-400"
+                            : "text-base bg-green-200 hover:bg-green-300"
                     }`}
+                    style={{
+                        top: `${10 + (index % 5) * 18}%`,
+                        left: `${5 + (index % 5) * 18}%`,
+                        transform: `rotate(${Math.random() * 10 - 5}deg)`,
+                    }}
                     title={`Created by: ${topic.createdBy} on ${topic.createdAt}`}
                 >
                     {topic.title}
