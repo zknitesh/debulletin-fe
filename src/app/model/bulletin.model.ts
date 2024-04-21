@@ -1,4 +1,4 @@
 interface Bulletin {
     id: string;
-    text: string;
+    title: string;
 }
