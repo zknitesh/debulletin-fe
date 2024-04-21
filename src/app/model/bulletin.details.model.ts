@@ -1,10 +1,10 @@
-interface BulletinDetails {
+export interface BulletinDetails {
     id: string;
     title: string;
     topics: BulletinTopic[];
 }
 
-interface BulletinTopic {
+export interface BulletinTopic {
     id: string;
     title: string;
     createdBy: string;
@@ -12,7 +12,7 @@ interface BulletinTopic {
     priority: Priority;
 }
 
-enum Priority {
+export enum Priority {
     High = "HIGH",
     Medium = "MEDIUM",
     Low = "LOW",

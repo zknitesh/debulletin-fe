@@ -36,3 +36,42 @@ select {
   color: darkblue;
 }
 
+/* Global page styles */
+.page-background {
+  background: radial-gradient(circle, #bbdefb 30%, #e3f2fd 100%);
+}
+
+/* Bulletin item styling */
+.bulletin {
+  padding: 20px;
+  border-radius: 8px;
+  margin: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 150px;  /* Fixed height for uniformity */
+}
+
+.highPriority {
+  background-color: #d32f2f; /* Red 700 */
+  color: #ffffff; /* White text */
+}
+
+.mediumPriority {
+  background-color: #303f9f; /* Indigo 700 */
+  color: #ffffff; /* White text */
+}
+
+.lowPriority {
+  background-color: #388e3c; /* Green 700 */
+  color: #ffffff; /* White text */
+}
+
+.bulletin:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+

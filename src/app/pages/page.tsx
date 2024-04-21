@@ -1,8 +1,8 @@
 "use client";
-import Provider from "./components/provider";
-import MetaMaskCard from "./components/connectorCards/MetaMaskCard";
+import Provider from "../components/provider";
+import MetaMaskCard from "../components/connectorCards/MetaMaskCard";
 import Link from "next/link";
-import { useStore } from "./store/store";
+import { useStore } from "../store/store";
 import { useEffect } from "react";
 
 export default function Home() {
