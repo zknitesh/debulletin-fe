@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { BulletinTopic, Priority } from "../../../model/bulletin.details.model";
 
 // Sample data
@@ -146,6 +146,23 @@ const sampleBulletins: BulletinTopic[] = [
     },
 ];
 
+interface Position {
+    top: number;
+    left: number;
+    rotate: number;
+}
+
+interface Dimension {
+    width: number;
+    height: number;
+}
+
+interface BulletinPosition extends Position, Dimension {
+    id: string; // Include the ID in the position definition
+}
+
+interface ContainerDimensions extends Dimension {}
+
 const shuffleArray = (array: any[]) => {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -154,60 +171,151 @@ const shuffleArray = (array: any[]) => {
     return array;
 };
 
+const getPriorityZIndex = (priority: Priority) => {
+    switch (priority) {
+        case Priority.High:
+            return 300;
+        case Priority.Medium:
+            return 200;
+        case Priority.Low:
+            return 100;
+        default:
+            return 100;
+    }
+};
+
+const getRandomNonOverlappingPosition = (
+    bulletin: BulletinTopic,
+    positions: BulletinPosition[],
+    containerDimensions: Dimension
+): BulletinPosition => {
+    let maxAttempts = 50;
+    let position: BulletinPosition;
+    do {
+        position = {
+            id: bulletin.id,
+            top: Math.random() * (containerDimensions.height - 100),
+            left: Math.random() * (containerDimensions.width - 180),
+            rotate: Math.random() * 20 - 10,
+            width: 180,
+            height: 100,
+        };
+
+        let overlap = positions.some((pos) => {
+            return !(
+                position.left + position.width < pos.left ||
+                position.left > pos.left + pos.width ||
+                position.top + position.height < pos.top ||
+                position.top > pos.top + pos.height
+            );
+        });
+
+        if (!overlap) {
+            positions.push(position);
+            break;
+        }
+    } while (--maxAttempts);
+
+    return position;
+};
+
 const BulletinBoardPage = ({ params }: { params: { id: string } }) => {
     const [bulletins, setBulletins] = useState<BulletinTopic[]>([]);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
+    const [containerDimensions, setContainerDimensions] = useState<Dimension>({
+        width: 1200,
+        height: 800,
+    });
+    const positions = useRef<BulletinPosition[]>([]);
+
     useEffect(() => {
-        console.log(`Bulletin board id: ${params.id}`);
-        const sortedBulletins = sampleBulletins
-            .sort((a, b) => a.priority.localeCompare(b.priority))
-            .reduce((acc: BulletinTopic[][], curr) => {
-                const index = acc.findIndex(
-                    (arr) =>
-                        arr.length === 0 || arr[0].priority === curr.priority
-                );
-                if (index !== -1) {
-                    acc[index].push(curr);
-                } else {
-                    acc.push([curr]);
-                }
-                return acc;
-            }, []);
+        function updateDimensions() {
+            setContainerDimensions({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            });
+        }
 
-        sortedBulletins.forEach((group) => shuffleArray(group));
+        window.addEventListener("resize", updateDimensions);
+        updateDimensions();
 
-        setBulletins(sortedBulletins.flat());
+        return () => {
+            window.removeEventListener("resize", updateDimensions);
+        };
     }, []);
+
+    useEffect(() => {
+        positions.current = []; // Clear previous positions
+        const sortedBulletins = sampleBulletins.sort((a, b) =>
+            a.priority.localeCompare(b.priority)
+        );
+        shuffleArray(sortedBulletins);
+        setBulletins(sortedBulletins);
+
+        sortedBulletins.forEach((bulletin) => {
+            getRandomNonOverlappingPosition(
+                bulletin,
+                positions.current,
+                containerDimensions
+            );
+        });
+    }, [containerDimensions]); // Recalculate positions when dimensions change
 
     return (
         <div
-            className="p-5"
-            style={{
-                position: "relative",
-                height: "100vh",
-                background: "burlywood",
-            }}
+            className="relative"
+            style={{ width: "100vw", height: "100vh", background: "burlywood" }}
         >
-            {bulletins.map((topic, index) => (
-                <div
-                    key={topic.id}
-                    className={`absolute p-3 rounded-lg shadow-lg transition-all duration-300 ease-in-out 
-                    ${
-                        topic.priority === Priority.High
-                            ? "text-2xl font-bold bg-red-500 hover:bg-red-600 text-white"
-                            : topic.priority === Priority.Medium
-                            ? "text-lg bg-yellow-300 hover:bg-yellow-400"
-                            : "text-base bg-green-200 hover:bg-green-300"
-                    }`}
-                    style={{
-                        top: `${10 + (index % 5) * 18}%`,
-                        left: `${5 + (index % 5) * 18}%`,
-                        transform: `rotate(${Math.random() * 10 - 5}deg)`,
-                    }}
-                    title={`Created by: ${topic.createdBy} on ${topic.createdAt}`}
-                >
-                    {topic.title}
-                </div>
-            ))}
+            <div
+                className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 p-3 bg-white text-black text-sm rounded shadow-md transition-opacity duration-300 ease-linear ${
+                    hoveredId ? "opacity-100" : "opacity-0"
+                }`}
+            >
+                {hoveredId
+                    ? `Created by: ${
+                          bulletins.find((b) => b.id === hoveredId)?.createdBy
+                      }, Date: ${
+                          bulletins.find((b) => b.id === hoveredId)?.createdAt
+                      }`
+                    : ""}
+            </div>
+            {bulletins.map((topic) => {
+                const pos = positions.current.find(
+                    (p) => p.id === topic.id
+                ) || {
+                    top: 0,
+                    left: 0,
+                    rotate: 0,
+                    width: 180,
+                    height: 100,
+                    id: topic.id,
+                };
+                const baseZIndex = getPriorityZIndex(topic.priority);
+                const zIndex = hoveredId === topic.id ? 1000 : baseZIndex;
+                return (
+                    <div
+                        key={topic.id}
+                        onMouseEnter={() => setHoveredId(topic.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                        className={`absolute p-3 rounded-lg shadow-lg transition-all duration-300 ease-in-out 
+                        ${
+                            topic.priority === Priority.High
+                                ? "text-2xl font-bold bg-red-500 hover:bg-red-600 text-white"
+                                : topic.priority === Priority.Medium
+                                ? "text-lg bg-yellow-300 hover:bg-yellow-400"
+                                : "text-base bg-green-200 hover:bg-green-300"
+                        }`}
+                        style={{
+                            top: `${pos.top}px`,
+                            left: `${pos.left}px`,
+                            transform: `rotate(${pos.rotate}deg)`,
+                            zIndex: zIndex,
+                        }}
+                    >
+                        {topic.title}
+                    </div>
+                );
+            })}
         </div>
     );
 };
